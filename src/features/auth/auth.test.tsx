@@ -58,6 +58,19 @@ describe('authentication pages', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Invalid email or password')
   })
 
+  it('explains the backend cold start and links to its status when login times out', async () => {
+    login.mockRejectedValue(new ApiError('The server took too long to respond.', { kind: 'timeout', status: null }))
+    renderAt('/login')
+    await userEvent.type(screen.getByLabelText(/^Email/), 'a@b.co')
+    await userEvent.type(screen.getByLabelText(/^Password/), 'secret-pass')
+    await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
+    expect(await screen.findByText('The server may be waking up')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'https://devtrack-backend-qm3r.onrender.com' })).toHaveAttribute(
+      'href',
+      'https://devtrack-backend-qm3r.onrender.com',
+    )
+  })
+
   it('navigates to the dashboard after a successful login', async () => {
     login.mockResolvedValue({
       accessToken: 't',
