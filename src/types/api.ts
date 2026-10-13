@@ -135,6 +135,19 @@ export interface CreateIssueRequest {
   estimatedHours?: number
 }
 
+export interface AiIssueDraftRequest {
+  projectId: string
+  title: string
+  description: string
+}
+
+export interface AiIssueDraftResponse {
+  title: string
+  description: string
+  acceptanceCriteria: string[]
+  suggestedLabels: string[]
+}
+
 export interface UpdateIssueRequest {
   title: string
   description?: string

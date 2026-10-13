@@ -22,6 +22,7 @@ import {
   type IssueType,
   type ProjectResponse,
 } from '../../types/api'
+import { IssueAiAssistant } from './IssueAiAssistant'
 import { issuesService } from './issuesService'
 
 interface IssueFormDialogProps {
@@ -107,6 +108,18 @@ export function IssueFormDialog({ issue, project, projects, onSaved, onClose }: 
               </option>
             ))}
           </SelectField>
+        )}
+        {!editing && (
+          <IssueAiAssistant
+            projectId={projectId}
+            title={title}
+            description={description}
+            onApply={(draft) => {
+              setTitle(draft.title)
+              setDescription(draft.description)
+              setErrors((current) => ({ ...current, title: undefined, description: undefined }))
+            }}
+          />
         )}
         <TextField label="Title" value={title} onChange={(e) => setTitle(e.target.value)} error={fieldError('title')} maxLength={200} required />
         <TextAreaField
