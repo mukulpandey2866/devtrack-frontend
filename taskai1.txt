@@ -1,0 +1,185 @@
+# DevTrack Phase 1 — Integrate the AI Issue Assistant into the Create Issue Form
+
+Implement the frontend for DevTrack's AI Issue Assistant using the existing React + TypeScript + Vite application.
+
+The backend AI draft endpoint will be:
+
+`POST /api/ai/issues/draft`
+
+The endpoint generates a draft only. The user must review the draft and explicitly submit the existing Create Issue form to save it.
+
+## 1. Inspect the existing frontend
+
+Before making changes, inspect:
+
+- The current Create Issue page, modal, or form.
+- The existing form fields and validation.
+- The project selection component and how project IDs are obtained.
+- The current API client, Axios configuration, authentication token handling, and API error handling.
+- Existing issue creation API integration.
+- Existing styling, UI components, notification patterns, and tests.
+
+Reuse existing components and conventions. Do not rebuild the application or change unrelated pages.
+
+## 2. Preserve the existing Create Issue form
+
+The current form contains:
+
+- Project selection.
+- Title.
+- Description.
+- Type: Task, Bug, Story, Epic.
+- Priority: Low, Medium, High, Critical.
+- Due date.
+- Estimated hours.
+- Cancel and Create Issue actions.
+
+Preserve these fields, validation rules, enum values, and the existing issue creation request.
+
+Project options must continue to come from the existing projects API rather than hardcoded project IDs. Preserve the existing project display labels, including entries such as SAT001 — Project Saturn and JUP001 — Mission Jupitor if those are the actual returned values.
+
+Assignees and labels are currently managed after issue creation. Do not redesign that workflow.
+
+## 3. Add the Generate with AI action
+
+Add a visually consistent **Generate with AI** button near the title and description fields.
+
+Use an existing icon library such as Lucide React if already installed. Keep the existing DevTrack visual style.
+
+When clicked:
+
+1. Check that a project is selected if the endpoint requires one.
+2. Require a non-empty rough title or description.
+3. Send the selected project ID, current title, and current description to the backend AI draft endpoint.
+4. Display a loading state while the request is running.
+5. Prevent duplicate requests while generation is in progress.
+6. Display an understandable error if the request fails.
+7. Preserve the user's original form values if generation fails.
+
+Do not call Gemini directly from the browser. Use the existing authenticated API client and backend base URL configuration.
+
+Example request:
+
+```json
+{
+  "projectId": "selected-project-uuid",
+  "title": "",
+  "description": "Login sometimes crashes after repeated invalid passwords"
+}
+```
+
+Use the actual project ID type and API client conventions found in the codebase.
+
+## 4. Show a reviewable AI draft
+
+Expect the backend response to contain:
+
+```json
+{
+  "title": "Handle repeated invalid login attempts safely",
+  "description": "Investigate and resolve crashes after repeated failed login attempts.",
+  "acceptanceCriteria": [
+    "Invalid credentials display an appropriate error message.",
+    "Repeated failed attempts do not crash the application.",
+    "Valid login continues to work."
+  ],
+  "suggestedLabels": [
+    "bug",
+    "authentication"
+  ]
+}
+```
+
+Create a review experience using the existing modal, panel, or inline form patterns.
+
+Display:
+
+- Generated title.
+- Generated detailed description.
+- Acceptance criteria.
+- Suggested labels.
+
+Allow the user to review and edit the draft before applying it to the form. Provide clear actions such as Apply Draft, Regenerate, and Cancel where they fit the current UI.
+
+Do not display hardcoded example results as real AI responses.
+
+## 5. Apply the draft without losing user control
+
+When the user chooses Apply Draft:
+
+- Populate the existing Title field with the generated title.
+- Populate the existing Description field with the generated description.
+- Preserve the selected project, type, priority, due date, and estimated hours.
+- Do not automatically save the issue.
+- Do not create a second issue.
+- Let the user continue editing the normal form and use the existing Create Issue button to save.
+
+### Acceptance criteria handling
+
+Inspect the existing issue creation DTO and schema first.
+
+- If acceptance criteria already have a supported field, populate it.
+- If there is no separate field, append the criteria to the description under a clearly formatted `Acceptance Criteria` heading.
+- Avoid appending duplicate acceptance criteria when a user applies the same draft more than once.
+- Keep the final description editable using the existing field.
+
+### Suggested labels handling
+
+Display suggested labels as recommendations.
+
+Because labels are currently added from the issue page after creation:
+
+- Do not send suggested labels as unsupported fields in the issue creation request.
+- Do not create labels automatically.
+- Do not assign labels without user action.
+- If the existing UI supports it, provide a clear reminder that these suggestions can be applied from the created issue's page.
+
+## 6. Regeneration and cancellation
+
+Regenerate should call the AI endpoint again using the current rough input or the user's chosen regeneration input. It must not create an issue.
+
+Cancel should close the draft review without saving anything.
+
+Avoid losing edits without warning. If the user has modified the draft, preserve those edits or ask for confirmation before discarding them.
+
+Ensure the loading state, error state, and retry action work correctly.
+
+## 7. API and authentication requirements
+
+- Reuse the central API client and existing authentication handling.
+- Do not hardcode the production backend URL in new components.
+- Do not add the Gemini API key or any other AI provider secret to frontend environment variables.
+- Do not bypass existing login, authorization, or error handling.
+- Ensure the endpoint path is correct relative to the existing API base URL configuration.
+
+## 8. UX and accessibility
+
+- Match the existing Create Issue modal and form styling.
+- Support desktop and mobile layouts.
+- Use accessible labels and keyboard-accessible actions.
+- Disable the Generate with AI button when input is invalid or a request is in progress.
+- Keep the existing Create Issue button behavior unchanged.
+- Do not make AI generation mandatory for creating issues.
+- Ensure users can still create issues normally when AI is unavailable.
+
+## 9. Tests and verification
+
+Add or update tests for:
+
+- Rendering the AI action.
+- Generating a draft from the backend.
+- Loading and error states.
+- Applying a generated draft to the form.
+- Preserving type, priority, due date, and estimated hours.
+- Acceptance criteria handling.
+- Showing suggested labels without automatically creating or assigning them.
+- Ensuring only the normal Create Issue action submits the issue.
+- Keeping the existing issue creation flow working.
+
+Use mocked API responses in automated tests.
+
+Run the existing lint, tests, and production build. Fix regressions introduced by the changes.
+
+At the end, summarize files changed, behavior implemented, tests run, and any manual verification steps.
+
+Implement directly in the existing frontend. Do not change the backend or database in this task, and do not redesign the entire application.
