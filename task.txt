@@ -1,0 +1,364 @@
+# DevTrack Frontend — Full React Application
+
+Act as a senior React, TypeScript, UI/UX, and frontend architecture engineer.
+
+Build the frontend for **DevTrack**, a modern project and issue management application similar to a simplified Jira.
+
+The backend is already implemented and deployed. Your responsibility is to build the frontend only. Do not modify the backend repository.
+
+## 1. Existing technology stack
+
+- React
+- TypeScript
+- Vite
+- React Router
+- Axios
+- Lucide React icons
+- CSS with responsive layouts and reusable styling
+
+The project has already been initialized using the Vite React TypeScript template.
+
+The backend base URL is configured through:
+
+`VITE_API_BASE_URL=https://devtrack-backend-qm3r.onrender.com`
+
+Read this environment variable through `import.meta.env.VITE_API_BASE_URL`.
+
+Do not hard-code the API base URL throughout the application.
+
+## 2. First inspect the existing project
+
+Before writing code:
+
+1. Inspect `package.json`, the existing Vite configuration, TypeScript configuration, and starter files.
+2. Inspect the current project structure and dependencies.
+3. Inspect the backend's available API documentation at its Swagger UI, accessible from:
+   `https://devtrack-backend-qm3r.onrender.com`
+4. Determine the actual endpoint paths, request DTOs, response DTOs, authentication format, and HTTP status codes wherever the documentation makes them available.
+5. Create a concise implementation plan.
+
+Do not assume endpoints exist merely because they are listed in this prompt. If an endpoint or response format cannot be verified, isolate the uncertainty in the API layer and document what needs confirmation.
+
+Do not generate fake successful API responses or silently substitute mock data for real backend data.
+
+## 3. Project structure
+
+Create and maintain a clean feature-based structure similar to:
+
+src/
+  app/
+    App.tsx
+    router.tsx
+  assets/
+  components/
+    common/
+    layout/
+    ui/
+  features/
+    auth/
+    dashboard/
+    projects/
+    issues/
+    comments/
+    labels/
+  hooks/
+  lib/
+    api.ts
+  types/
+  styles/
+    globals.css
+  main.tsx
+
+Adapt the structure if existing files make a different organization more appropriate.
+
+Responsibilities:
+
+- `app`: application setup and routing.
+- `components/layout`: sidebar, header, navigation, and page layout.
+- `components/ui`: reusable buttons, inputs, dialogs, badges, dropdowns, and loading states.
+- `features`: page-specific UI and functionality.
+- `lib/api.ts`: centralized Axios configuration.
+- `types`: shared TypeScript interfaces and API types.
+- `hooks`: reusable React hooks.
+- `styles`: global design tokens and styling.
+
+Avoid putting the entire application into one component.
+
+## 4. Design requirements
+
+Create a polished, professional SaaS dashboard interface.
+
+Visual direction:
+
+- Clean, modern project management dashboard.
+- Light neutral background with white surfaces.
+- Dark navy or charcoal navigation.
+- Restrained indigo or blue accent color.
+- Consistent spacing, typography, border radii, and shadows.
+- Clear visual hierarchy and readable tables.
+- Subtle transitions and hover states.
+- Responsive design for desktop, tablet, and mobile.
+- Accessible form labels, keyboard navigation, and focus states.
+- Lucide React icons instead of emoji icons.
+
+Create a reusable design system using CSS variables for colors, spacing, typography, borders, shadows, and component sizes.
+
+Build a persistent application layout with a sidebar and top navigation on desktop. Provide an appropriate mobile navigation experience.
+
+Avoid excessive gradients, unnecessary animation, oversized cards, and generic-looking starter-template styling.
+
+## 5. Authentication pages
+
+Create:
+
+- Login page.
+- Registration page.
+- Authentication-aware route handling.
+- Logout functionality.
+
+Login fields:
+
+- Email.
+- Password.
+- Show/hide password control.
+- Submit button.
+- Validation messages.
+- Loading and error states.
+- Link to registration.
+
+Registration fields:
+
+- Full name.
+- Email.
+- Password.
+- Confirm password as a frontend-only field.
+- Client-side validation.
+- Submit button.
+- Link to login.
+
+Use the actual backend registration and login endpoints and their documented JSON contracts.
+
+Do not send `confirmPassword` unless the backend explicitly requires it.
+
+Display useful validation errors returned by the backend.
+
+Do not store passwords in browser storage or logs.
+
+Implement token/session handling according to the backend's actual authentication contract. Prefer secure HttpOnly cookie-based sessions when the backend supports them. If the backend returns bearer tokens, use an explicit, documented token lifecycle and avoid persistent browser storage by default. Do not invent refresh-token behavior.
+
+If the current backend authentication contract is incompatible with the frontend requirements, document the exact gap rather than pretending login works.
+
+## 6. Application navigation and protected pages
+
+Create these routes where appropriate:
+
+- `/login`
+- `/register`
+- `/dashboard`
+- `/projects`
+- `/projects/:projectId`
+- `/issues`
+- `/issues/:issueId`
+- `/profile`
+- A not-found page.
+
+Redirect unauthenticated users away from protected pages according to the implemented authentication strategy.
+
+Do not treat a frontend route guard as a security boundary. The backend remains responsible for authorization.
+
+Keep the signed-in user's information available through a shared authentication context or equivalent well-structured state management.
+
+Handle expired sessions and unauthorized API responses consistently.
+
+## 7. Dashboard
+
+Build a useful dashboard that uses real backend data wherever supported.
+
+Include:
+
+- Welcome header.
+- Summary cards for assigned issues, open issues, completed issues, and projects.
+- Recent projects.
+- Recently updated issues.
+- Issues grouped or summarized by status.
+- Quick actions for creating projects and issues, subject to user permissions.
+- Loading skeletons.
+- Empty states for new accounts.
+- Error and retry states.
+
+Do not invent statistics. Calculate counts from returned data or use appropriate backend summary endpoints if they exist.
+
+If a summary endpoint does not exist, determine whether the result can safely be calculated from the available paginated APIs. Do not download unlimited records just to calculate dashboard totals.
+
+## 8. Projects
+
+Build a projects page with:
+
+- Project list.
+- Search and filters where supported.
+- Project name, key, status, and relevant metadata.
+- Create-project dialog or page.
+- Project details page.
+- Edit-project functionality where supported.
+- Project member list and role display.
+- Clear empty and error states.
+
+Only display actions the current user is authorized to perform.
+
+Use the actual project API contracts. Do not invent member-management or project deletion endpoints if they are not implemented.
+
+## 9. Issues
+
+Build issue management functionality with:
+
+- Issue list.
+- Issue detail page.
+- Create and edit issue forms.
+- Issue title and description.
+- Issue type, status, and priority.
+- Reporter and assignees.
+- Due date and estimated hours.
+- Project and issue number.
+- Labels.
+- Comments and issue history when supported by the API.
+
+Provide filtering by status, priority, type, assignee, reporter, and label where supported.
+
+Use server-side pagination and filtering when the backend supports them.
+
+Validate input and show meaningful errors.
+
+Display status and priority badges consistently.
+
+Support status changes through the actual backend endpoint.
+
+Do not allow the UI to imply that an operation succeeded until the API confirms success.
+
+## 10. Shared API layer
+
+Create a centralized Axios instance in `src/lib/api.ts`.
+
+Requirements:
+
+- Read the base URL from `VITE_API_BASE_URL`.
+- Handle JSON requests and responses.
+- Support authentication according to the backend's actual token or cookie strategy.
+- Normalize API errors.
+- Handle network failures.
+- Handle unauthorized responses consistently.
+- Support request cancellation where appropriate.
+- Avoid logging credentials, passwords, or access tokens.
+- Do not configure permissive or unsafe cross-origin behavior.
+
+Organize API operations into feature-specific service modules where appropriate, such as authentication, projects, issues, comments, and labels.
+
+Do not place raw Axios calls throughout page components.
+
+Use TypeScript types for request payloads and responses. Keep the frontend API types aligned with the backend's actual contracts.
+
+## 11. State management and user experience
+
+Use React state and context appropriately. Avoid adding Redux or another large state-management library unless a genuine need is demonstrated.
+
+Implement:
+
+- Loading indicators.
+- Skeletons for data-heavy pages.
+- Empty states.
+- Form validation.
+- Success and error feedback.
+- Confirmation dialogs for destructive actions.
+- Retry options for failed requests.
+- Accessible modal and dropdown behavior.
+- Sensible error boundaries where appropriate.
+
+Prevent duplicate submissions and stale asynchronous updates.
+
+Do not silently swallow exceptions.
+
+## 12. Backend integration and CORS
+
+The backend is deployed at:
+
+`https://devtrack-backend-qm3r.onrender.com`
+
+Use the configured base URL to construct API requests.
+
+The frontend and backend are separate origins. Document any backend CORS configuration required for local development.
+
+The local Vite origin will usually be:
+
+`http://localhost:5173`
+
+Do not attempt to fix CORS by using wildcard origins or disabling browser security.
+
+Do not proxy the backend through Vite as a production workaround.
+
+If the Render service is temporarily sleeping or slow to respond, show a clear loading state and a useful error message.
+
+## 13. Code quality
+
+- Use functional React components and hooks.
+- Use TypeScript strictly.
+- Avoid unnecessary `any`.
+- Keep components focused and reusable.
+- Extract repeated UI into shared components.
+- Avoid duplicated API logic.
+- Use stable keys when rendering lists.
+- Clean up subscriptions and asynchronous effects appropriately.
+- Avoid unnecessary dependencies.
+- Follow accessibility best practices.
+- Keep all UI states consistent with the real API response.
+- Do not add secrets to `.env` files that are committed to Git.
+
+Do not change backend code.
+
+## 14. Implementation workflow
+
+Work in phases.
+
+### Phase 1: Foundation
+
+- Inspect the project.
+- Install only necessary dependencies.
+- Create the folder structure.
+- Set up routing, global styling, the shared layout, and the API client.
+- Build a polished responsive application shell.
+
+### Phase 2: Authentication
+
+- Implement login and registration.
+- Integrate the actual authentication API.
+- Implement session/token handling and protected routes.
+- Test validation, loading, and error behavior.
+
+### Phase 3: Main application
+
+- Implement dashboard.
+- Implement projects and project details.
+- Implement issues and issue details.
+- Add comments, labels, and membership interfaces where supported.
+
+### Phase 4: Integration and polish
+
+- Verify every implemented API operation against the actual backend.
+- Improve responsive behavior.
+- Check accessibility and loading/error states.
+- Remove unused starter code and dependencies.
+- Verify that all links and buttons perform real actions.
+
+### Phase 5: Verification
+
+Run:
+
+- `npm run build`
+- Any configured lint command.
+- Appropriate tests, adding a lightweight testing setup if necessary.
+
+Fix TypeScript errors, build failures, and runtime problems.
+
+Summarize the files created or changed, the features implemented, the tests executed, and any backend endpoints or contracts that still need attention.
+
+Do not claim that a feature works against the deployed backend unless the integration has actually been verified.
+
+Start with Phase 1, then proceed incrementally. Keep the application runnable after each phase.
